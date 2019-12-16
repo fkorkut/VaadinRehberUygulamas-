@@ -98,17 +98,16 @@ public class DBTransaction {
             int affectedRows=preparedStatement.executeUpdate();
             System.out.println("Silindi"+affectedRows);
 
-
-
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
             System.out.println("hata sql bağlantısı");
 
-                   } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
 
         }
-
     }
 
 

@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Islemler {
-    TextField nameField, surnameField, phoneField;
+    TextField nameField, surnameField, phoneField ,idField;
     Button save, delete,update;
     Table table;
     IndexedContainer indexedContainer;
-     static List<Kisi> listKisi;
-
+    List<Kisi> listKisi;
+    Kisi kisi;
 
     public void components(FormLayout formLayout) {
 
@@ -49,20 +49,9 @@ class Islemler {
             public void itemClick(ItemClickEvent itemClickEvent) {
               clickTable(itemClickEvent);
 
-                Kisi kisi=(Kisi)itemClickEvent.getItemId();
-                delete.addClickListener(new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        deleteButtonClick(kisi.getId());
-                    }
-                });
-                update.addClickListener(new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        updateButton(kisi);
-                    }
-                });
-
+                kisi=(Kisi)itemClickEvent.getItemId();
+                deleteButtonClick(kisi.getId());//tablodaki seçilen satırı sil
+                updateButtonClick(kisi);//tablodaki seçilen satırı güncelle
             }
         });
         createContainer();
@@ -75,20 +64,26 @@ class Islemler {
         formLayout.addComponent(update);
         delete = new Button();
         delete.setCaption("Sil");
-         formLayout.addComponent(delete);
+        formLayout.addComponent(delete);
 
 
     }
 
     public void saveButtonClick() {
-        Kisi kisi = new Kisi();
+        kisi = new Kisi();
         kisi.setAd(nameField.getValue());
         kisi.setSoyad(surnameField.getValue());
         kisi.setTelefon(phoneField.getValue());
-
+        for (Kisi kisiFor:listKisi) {
+            if (kisiFor.getTelefon()==kisi.getTelefon()){
+                Notification.show("Ekleme yapılamadı aynı telefon ile daha önce kayıt yapıldı");
+                return;
+            }
+        }
         DBTransaction dbTransaction = new DBTransaction();
         int sonuc = dbTransaction.addKisi(kisi);
         if (sonuc > 0) Notification.show("Kişi Eklendi");
+
     }
 
     public void createContainer() {
@@ -121,24 +116,31 @@ class Islemler {
         surnameField.setValue(soyadi);
         String telefon=(String) itemClickEvent.getItem().getItemProperty("Telefon").getValue();
         phoneField.setValue(telefon);
-        int id=(int) itemClickEvent.getItem().getItemProperty("id").getValue();
     }
-
 
     public void deleteButtonClick(int id){
-         DBTransaction dbTransaction = new DBTransaction();
-         dbTransaction.deleteKisi(id);
-         Notification.show(id+"Kişi Silindi");
+        delete.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                DBTransaction dbTransaction = new DBTransaction();
+                dbTransaction.deleteKisi(id);
+                Notification.show(id+"idli Kişi Silindi");
+            }
+        });
 
     }
 
-
-    public  void updateButton(Kisi kisi){
-        DBTransaction dbTransaction = new DBTransaction();
-        kisi.setAd(nameField.getValue());
-        kisi.setSoyad(surnameField.getValue());
-        kisi.setTelefon(phoneField.getValue());
-        int sonuc=dbTransaction.update(kisi);
-        if (sonuc>0) Notification.show("Kişi güncellendi");
+    public  void updateButtonClick(Kisi kisi){
+        update.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                DBTransaction dbTransaction = new DBTransaction();
+                kisi.setAd(nameField.getValue());
+                kisi.setSoyad(surnameField.getValue());
+                kisi.setTelefon(phoneField.getValue());
+                int sonuc=dbTransaction.update(kisi);
+                if (sonuc>0) Notification.show("Kişi güncellendi");
+            }
+        });
     }
 }
