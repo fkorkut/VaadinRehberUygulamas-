@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Islemler {
-    TextField nameField, surnameField, phoneField ,idField;
+    TextField nameField, surnameField, phoneField ;
     Button save, delete,update;
     Table table;
     IndexedContainer indexedContainer;
@@ -37,7 +37,7 @@ class Islemler {
         save.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                saveButtonClick();
+                saveButton();
             }
         });
         formLayout.addComponent(save);
@@ -48,10 +48,7 @@ class Islemler {
             @Override
             public void itemClick(ItemClickEvent itemClickEvent) {
               clickTable(itemClickEvent);
-
                 kisi=(Kisi)itemClickEvent.getItemId();
-                deleteButtonClick(kisi.getId());//tablodaki seçilen satırı sil
-                updateButtonClick(kisi);//tablodaki seçilen satırı güncelle
             }
         });
         createContainer();
@@ -61,15 +58,28 @@ class Islemler {
 
         update = new Button();
         update.setCaption("Güncelle");
+        update.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+              updateButton();
+            }
+        });
         formLayout.addComponent(update);
         delete = new Button();
         delete.setCaption("Sil");
+        delete.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                deleteButton();
+            }
+        });
         formLayout.addComponent(delete);
 
 
     }
 
-    public void saveButtonClick() {
+
+    private void saveButton() {
         kisi = new Kisi();
         kisi.setAd(nameField.getValue());
         kisi.setSoyad(surnameField.getValue());
@@ -86,7 +96,7 @@ class Islemler {
 
     }
 
-    public void createContainer() {
+    private void createContainer() {
         indexedContainer = new IndexedContainer();
         indexedContainer.addContainerProperty("id", Integer.class, 0);
         indexedContainer.addContainerProperty("adi", String.class, null);
@@ -94,7 +104,7 @@ class Islemler {
         indexedContainer.addContainerProperty("Telefon", String.class, null);
     }
 
-    public void insertTable() {
+    private void insertTable() {
         DBTransaction db = new DBTransaction();
         listKisi = new ArrayList<>();
         listKisi = db.listKisi();
@@ -109,7 +119,7 @@ class Islemler {
         table.setContainerDataSource(indexedContainer);
     }
 
-    public void clickTable(ItemClickEvent itemClickEvent){//tabloda tıklanan satırı kisi nesneleri alır
+    private void clickTable(ItemClickEvent itemClickEvent){//tabloda tıklanan satırı kisi nesneleri alır
         String adi = (String) itemClickEvent.getItem().getItemProperty("adi").getValue();
         nameField.setValue(adi);
         String soyadi = (String) itemClickEvent.getItem().getItemProperty("soyadi").getValue();
@@ -117,30 +127,22 @@ class Islemler {
         String telefon=(String) itemClickEvent.getItem().getItemProperty("Telefon").getValue();
         phoneField.setValue(telefon);
     }
-
-    public void deleteButtonClick(int id){
-        delete.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                DBTransaction dbTransaction = new DBTransaction();
-                dbTransaction.deleteKisi(id);
-                Notification.show(id+"idli Kişi Silindi");
-            }
-        });
-
+    private void updateButton() {
+        DBTransaction dbTransaction = new DBTransaction();
+        kisi.setAd(nameField.getValue());
+        kisi.setSoyad(surnameField.getValue());
+        kisi.setTelefon(phoneField.getValue());
+        int sonuc=dbTransaction.update(kisi);
+        if (sonuc>0) Notification.show("Kişi güncellendi");
     }
 
-    public  void updateButtonClick(Kisi kisi){
-        update.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                DBTransaction dbTransaction = new DBTransaction();
-                kisi.setAd(nameField.getValue());
-                kisi.setSoyad(surnameField.getValue());
-                kisi.setTelefon(phoneField.getValue());
-                int sonuc=dbTransaction.update(kisi);
-                if (sonuc>0) Notification.show("Kişi güncellendi");
-            }
-        });
+    private void deleteButton() {
+        DBTransaction dbTransaction = new DBTransaction();
+        dbTransaction.deleteKisi(kisi.getId());
+        Notification.show(kisi.getId()+"idli Kişi Silindi");
     }
+
+
+
+
 }
