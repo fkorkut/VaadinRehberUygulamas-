@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBTransaction {
+public class DBOperation {
 
     final String CONNECTION_STR= "jdbc:mysql://localhost:3306/Rehber?serverTimezone=UTC";
     final String USERNAME="root";

@@ -4,7 +4,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.*;
-import egitim.uniyaz.db.DBTransaction;
+import egitim.uniyaz.db.DBOperation;
 import egitim.uniyaz.domain.Kisi;
 
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ class Islemler {
     IndexedContainer indexedContainer;
     List<Kisi> listKisi;
     Kisi kisi;
+    DBOperation dbOperation = new DBOperation();
 
     public void components(FormLayout formLayout) {
 
@@ -90,8 +91,8 @@ class Islemler {
                 return;
             }
         }
-        DBTransaction dbTransaction = new DBTransaction();
-        int sonuc = dbTransaction.addKisi(kisi);
+
+        int sonuc = dbOperation.addKisi(kisi);
         if (sonuc > 0) Notification.show("Kişi Eklendi");
 
     }
@@ -105,9 +106,8 @@ class Islemler {
     }
 
     private void insertTable() {
-        DBTransaction db = new DBTransaction();
         listKisi = new ArrayList<>();
-        listKisi = db.listKisi();
+        listKisi = dbOperation.listKisi();
        for (Kisi kisi : listKisi) {//tabloların içine verileri ekleme
             Item item = indexedContainer.addItem(kisi);
             item.getItemProperty("id").setValue(kisi.getId());
@@ -128,17 +128,15 @@ class Islemler {
         phoneField.setValue(telefon);
     }
     private void updateButton() {
-        DBTransaction dbTransaction = new DBTransaction();
         kisi.setAd(nameField.getValue());
         kisi.setSoyad(surnameField.getValue());
         kisi.setTelefon(phoneField.getValue());
-        int sonuc=dbTransaction.update(kisi);
+        int sonuc= dbOperation.update(kisi);
         if (sonuc>0) Notification.show("Kişi güncellendi");
     }
 
     private void deleteButton() {
-        DBTransaction dbTransaction = new DBTransaction();
-        dbTransaction.deleteKisi(kisi.getId());
+        dbOperation.deleteKisi(kisi.getId());
         Notification.show(kisi.getId()+"idli Kişi Silindi");
     }
 
